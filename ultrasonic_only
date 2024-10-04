@@ -1,0 +1,45 @@
+#define TRIG_PIN 10  // HC-SR04 Trig pin
+#define ECHO_PIN 11  // HC-SR04 Echo pin
+
+long duration;
+int distance;
+const int numReadings = 16;  // Number of readings to take
+int sensorReadings[numReadings];  // Array to store readings
+
+void setup() {
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  for (int i = 0; i < numReadings; i++) {
+    // Trigger the ultrasonic sensor to take a measurement
+    digitalWrite(TRIG_PIN, LOW);
+    delayMicroseconds(2);
+    digitalWrite(TRIG_PIN, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(TRIG_PIN, LOW);
+
+    // Measure the time for the echo
+    duration = pulseIn(ECHO_PIN, HIGH);
+
+    // Convert the time into distance (cm)
+    distance = duration * 0.034 / 2;
+
+    // Store the distance in the array
+    sensorReadings[i] = distance;
+
+    delay(100);  // Small delay between readings
+  }
+
+  // Send the readings to Processing over Serial
+  for (int i = 0; i < numReadings; i++) {
+    Serial.print(sensorReadings[i]);
+    if (i < numReadings - 1) {
+      Serial.print(",");  // Separate values with commas
+    }
+  }
+  Serial.println();  // Newline after sending the entire array
+  delay(10);  // Delay before the next sweep
+}
